@@ -1,4 +1,4 @@
-# Basl Basic Seriell Language
+# Basl, Basic Serial Language
 
 Diese Sprache ist inspiriert von SIMPL, VTL-02, txtzyme und anderen sehr kleinen Sprachen. Das Hauptaugenmerk der Sprache ist einerseits die einfache Lernbarkeit. Andererseits sollen damit die üblichen Aufgaben im Umfeld von Microcontrollern im Modellbau adressiert werden. Und ähnlich wie die TPS soll die Programmierung auch im eingebauten Zustand ohne Zuhilfenahme eines PC ermöglicht werden. 
 
@@ -6,15 +6,15 @@ Diese Sprache ist inspiriert von SIMPL, VTL-02, txtzyme und anderen sehr kleinen
 
 Die Sprache ist eine interpretierende REPL Sprache. (REPL: read-evaluate-print-loop) D.h. der Interpreter liest zunächst von der seriellen Konsole eine Zeile, interpretiert diese, und gibt dann das Ergebnis wieder aus. Danach fängt der Zyklus von vorne an. 
 
-Der Interpreter ist eine sog. Stackmaschine, d.h. alle Befehle arbeiten mit dem Stack, manipulieren diesen, entnehmen Werte oder legen neue Werte darauf. Ein zusätzlicher Speicher kann angesprochen werden. Größe des Stacks und des Speichers sind implementierungsabhängig. Auch die Zuordnung der Pins zu analogen oder digitalen Ein/Ausgaben finden sich in der jeweiligen Implementierung. 
+Die Eingaben können aber auch direkt aus einem Speicher (EEPROM, Flash) stammen. Der Interpreter selber ist eine sog. Stackmaschine, d.h. alle Befehle arbeiten mit dem Stack, manipulieren diesen, entnehmen Werte oder legen neue Werte darauf. Auch steht ein zusätzlicher Speicher zur Verfügung. Die Größe des Stacks und des Speichers sind implementierungsabhängig. Auch die Zuordnung der Pins zu analogen oder digitalen Ein/Ausgaben finden sich in der jeweiligen Implementierung. 
 
-Die grundlegenden Befehle der Sprache sind als Kleinbuchstaben definiert. Für eigene "Routinen" oder "Funktionen" stehen damit die Kleinbuchstaben zur Verfügung. Die Sprache verwendet einen Parameterstack, um Parameter an Befehle, Routinen oder Funktionen zu übergeben. 
+Die grundlegenden Befehle der Sprache sind als Kleinbuchstaben definiert. Für eigene "Routinen" oder "Funktionen" stehen damit die Großbuchstaben zur Verfügung. Die Sprache verwendet einen Parameterstack, um Parameter an Befehle, Routinen oder Funktionen zu übergeben. 
 
 Beispiel: 
 
 Die Zeile 
 
-`100 200 + [cr]`
+`100 200+[cr]`
 
 berechnet 100 + 200 und legt dann das Ergebnis, 300, wieder auf den Stack.
 
@@ -109,7 +109,7 @@ Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systemes 
 | i       | input from pin                                               | 1. Pinnummer                      | j       | Pulse in, misst die Pulsweite am Pin in ms                   | 1. Pin                                    |
 | k       | aktueller Wert in einer Schleife                             |                                   | l       |                                                              |                                           |
 | m       |                                                              |                                   | n       |                                                              |                                           |
-| o       | output to pin                                                | 1. Pinnumer<br />2. Wert          | p       | gibt den aktuellen Wert auf der Schnittstelle aus            | 1. Wert                                   |
+| o       | output to pin                                                | 1. Pinnumer<br />2. Wert          | p       | gibt den aktuellen Wert                                      | 1. Wert                                   |
 | q       | gibt alle Unterprogramme aus                                 |                                   | r       | Restore, holt einen Wert aus einer Speicherzelle             | 1. Speicherzelle                          |
 | s       | Save, speichert einen Wert auf eine Speicherstelle           | 1. Speicherzelle<br />2. Wert     | t       | tone                                                         | 1.  Frequenz 0=Off                        |
 | u       |                                                              |                                   | v       |                                                              |                                           |
@@ -119,17 +119,17 @@ Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systemes 
 | "       | DUP, obersten Stackwert duplizieren                          |                                   | §       |                                                              |                                           |
 | /       | Division                                                     | 1. Wert<br />2. Wert              | $       |                                                              |                                           |
 | %       | Modulus                                                      | 1. Wert<br />2. Wert              | &       | AND                                                          | 1. Wert<br />2. Wert                      |
-| ()      |                                                              |                                   | =       | Skip if equal                                                | 1. Wert<br />2. Wert                      |
+| ()      |                                                              |                                   | =       | Skip if not equal                                            | 1. Wert<br />2. Wert                      |
 | []      |                                                              |                                   | {}      | Block definition                                             |                                           |
-| +       | Addition                                                     | 1. Wert<br />2. Wert              | ?       | Skip if 0                                                    | 1. Wenn =0 dann Befehl/Block überspringen |
+| +       | Addition                                                     | 1. Wert<br />2. Wert              | ?       | Skip if not 0                                                | 1. Wenn =0 dann Befehl/Block überspringen |
 | *       | Multiplikation                                               | 1. Wert<br />2. Wert              | ~       | NOT                                                          | 1. Wert                                   |
 | -       | Subtraktion                                                  | 1. Wert<br />2. Wert              | _       | Gibt einen Text auf der Schnittstelle aus.                   |                                           |
 | #       | Start einer Schleife                                         | 1. Anzahl der Schleifendurchgänge | : ;     | Start und Ende einer eigenen Definition                      |                                           |
 | .       | print stacksize                                              |                                   | ,       | print stack                                                  |                                           |
 | °       |                                                              |                                   | @       |                                                              |                                           |
 | €       |                                                              |                                   | ^       | XOR                                                          | 1. Wert<br />2. Wert                      |
-| \|      | OR                                                           | 1. Wert<br />2. Wert              | >       | Skip if Greater than                                         | 1. Wert<br />2. Wert                      |
-| '       | DROP, obersten Stackwert verwerfen                           |                                   | <       | Skip if lesser than                                          | 1. Wert<br />2. Wert                      |
+| \|      | OR                                                           | 1. Wert<br />2. Wert              | >       | Skip if not Greater than                                     | 1. Wert<br />2. Wert                      |
+| '       | DROP, obersten Stackwert verwerfen                           |                                   | <       | Skip if not lesser than                                      | 1. Wert<br />2. Wert                      |
 
 ## Apendix
 

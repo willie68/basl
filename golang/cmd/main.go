@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 
 	flag "github.com/spf13/pflag"
 )
 
 type Stack []int
+
+const COMMANDS string = " 0123456789bcdhijkopqrst\"/%&={}+?*~-_#:;.,^|><'"
+const USRCMD string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 var (
 	baslFile     string
@@ -24,6 +26,8 @@ var (
 	defName      string
 	defText      string
 	reader       *bufio.Reader
+	v            int
+	inNumber     bool
 )
 
 func init() {
@@ -50,7 +54,8 @@ func main() {
 	stack = make([]int, 0)
 	store = make([]int, 1024)
 	definitions = make(map[string]string)
-
+	v = 0
+	inNumber = false
 	fmt.Println("SPLRC Serial Programming Language for Micro Controller")
 	for {
 		fmt.Print(":")
@@ -62,43 +67,69 @@ func main() {
 		// convert CRLF to LF
 		text = strings.Replace(text, "\r", "", -1)
 		text = strings.Replace(text, "\n", "", -1)
+		execute(text)
+	}
+}
 
-		slc := strings.Split(text, " ")
-		for _, nme := range slc {
-			nme = strings.TrimSpace(nme)
+func execute(text string) {
+	// slc := strings.Split(text, " ")
+	for _, chr := range text {
+		schr := string(chr)
 
-			if nme == ":" {
-				fmt.Println("start defining user cmd")
-				inDefinition = true
+		if chr == ':' {
+			fmt.Println("start defining user cmd")
+			inDefinition = true
+			continue
+		}
+
+		if inDefinition {
+			if chr == ';' {
+				fmt.Println("stop defining user cmd")
+				inDefinition = false
+				definitions[defName] = strings.TrimSpace(defText)
+				defName = ""
+				defText = ""
 				continue
 			}
-
-			if inDefinition {
-				if nme == ";" {
-					fmt.Println("stop defining user cmd")
-					inDefinition = false
-					definitions[defName] = strings.TrimSpace(defText)
-					defName = ""
-					defText = ""
-				}
-				if defName == "" {
-					defName = nme
-					continue
-				}
-				if defText == "" {
-					defText = nme
-					continue
-				}
-				defText = defText + " " + nme
+			if defName == "" {
+				defName = schr
 				continue
 			}
+			if defText == "" {
+				defText = schr
+				continue
+			}
+			defText = defText + schr
+			continue
+		}
 
-			v, err := strconv.Atoi(nme)
-			if err != nil {
-				processNme(nme)
+		if strings.Contains(COMMANDS, schr) {
+			if (chr >= '0') && (chr <= '9') {
+				inNumber = true
+				v = v*10 + (int(chr) - int('0'))
+				continue
 			} else {
-				stack.Push(v)
+				if inNumber {
+					stack.Push(v)
+					v = 0
+					inNumber = false
+				}
 			}
+			if chr == ' ' {
+				continue
+			}
+
+			processNme(schr)
+		}
+
+		if strings.Contains(USRCMD, schr) {
+			fmt.Println("user command: ", schr)
+			def, ok := definitions[schr]
+			if !ok {
+				fmt.Println("user command not found! ", schr)
+				continue
+			}
+			execute(def)
 		}
 	}
 }
@@ -217,7 +248,16 @@ func processNme(nme string) {
 			fmt.Println("Error on stack, can't get value.")
 			return
 		}
-		stack.Push(^v1)
+		stack.Push(v1)
+	case "#":
+		v, ok := stack.Pop()
+		if !ok {
+			fmt.Println("Error on stack, can't get value.")
+			return
+		}
+		fmt.Println("loop from 1 to ", v)
+	case "?", "=", ">", "<":
+		fmt.Println("skip if not ", nme)
 	}
 }
 
@@ -256,13 +296,14 @@ func math(mne string) bool {
 func showHelp() {
 	fmt.Println("Help")
 	fmt.Println("[#]: push # to stack")
+	fmt.Println("b: break actual block")
+	fmt.Println("c: continue with next interation in loop")
 	fmt.Println("d: delay in ms")
 	fmt.Println("h: print help")
 	fmt.Println("i: input from pin")
 	fmt.Println("j: read pulse length")
 	fmt.Println("k: push loop index")
 	fmt.Println("o: output to pin")
-	fmt.Println("p: print value")
 	fmt.Println("r: retrive value from address")
 	fmt.Println("s: store value to address")
 	fmt.Println("t: tone, 0=off")
@@ -277,8 +318,15 @@ func showHelp() {
 	fmt.Println("*: MUL")
 	fmt.Println("/: DIV")
 	fmt.Println("%: MOD")
+	fmt.Println("p: print value")
+	fmt.Println("q: print all user functions")
 	fmt.Println(".: print stack size")
 	fmt.Println(",: print stack")
+	fmt.Println("_: print text")
+	fmt.Println("=: skip if not equal")
+	fmt.Println("?: skip if not null")
+	fmt.Println(">: skip if not greater than")
+	fmt.Println("?: skip if not lesser than")
 }
 
 func Reverse[T any](original []T) (reversed []T) {
