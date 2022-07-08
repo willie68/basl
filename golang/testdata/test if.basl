@@ -1,0 +1,20 @@
+_TEST_
+:A_skipped_;
+:B_not _;
+
+_ ! cmd skipped_
+0?BA
+_ ! cmd not skipped_
+10?BA
+
+_ ! cmd 10 > 11 skipped_
+10 11>BA
+
+_ ! cmd 10 < 11 not skipped_
+10 11<BA
+
+_ ! cmd 10 = 11 skipped_
+10 11=BA
+
+_ ! cmd 10 = 10 not skipped_
+10 10=BA

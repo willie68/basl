@@ -60,9 +60,11 @@ mit **{}** können Blöcke erzeugt werden. Diese gelten dann bei Bedingungen und
 
 Mit **?** wird ein Wert vom Stack genommen und damit ein Test ausgeführt. Ist der aktuelle Wert auf dem Stack > 0 wird der erste nachfolgende Befehl/Block ausgeführt. Ist der Wert = 0, wird der nächste Befehl/Block übersprungen und der übernächste ausgeführt.
 
-Mit **=** werden 2 Werte vom Stack genommen und auf Gleichheit getestet. Ist das Ergebniss wird der erste nachfolgende Befehl/Block ausgeführt. Ist das Ergebnis falsch, wird der nächste Befehl/Block übersprungen und der übernächste ausgeführt.  
+Mit **=** werden 2 Werte vom Stack genommen und auf Gleichheit getestet. Ist das Ergebnis wird der erste nachfolgende Befehl/Block ausgeführt. Ist das Ergebnis falsch, wird der nächste Befehl/Block übersprungen und der übernächste ausgeführt.  
 
 Ähnliches gilt für **>** und **<**. 
+
+Stack: [V2, V1]   -> V1 > V2
 
 Schleifen werden mit **#** gestartet. Der 1. Parameter ist die max. Anzahl der Durchläufe. Auf den Zähler der Schleife kann mittels **k** zugegriffen werden 
 
@@ -82,7 +84,7 @@ Beispiel: `20 # { k p}` gibt die Werte `1 2 3 4 5 .. 20` aus.
 
 **p** gibt des aktuellen Wert auf der Schnittstelle aus.
 
-**_** gibt den nachfolgenden Text bis zum CR aus. `_ Hallo RC Simple [cr]`  gibt "Hallo RC Simple" aus.
+**_** gibt den nachfolgenden Text bis zum nächsten **_** aus. `_ Hallo RC Simple_`  gibt "Hallo RC Simple" aus.
 
 ### Kommandos
 
@@ -91,6 +93,22 @@ Beispiel: `20 # { k p}` gibt die Werte `1 2 3 4 5 .. 20` aus.
 **t** Tone, erzeugt einen Ton, der Parameter gibt die Frequenz an. 0 bedeutet ausschalten. Beispiel: 
 
 `440 t 1000 d 0 t` erzeugt einen 1 sekündigen 440 Hz Ton.
+
+### Stack
+
+**[#]** legt die Nummer als Wert auf den Stack, z.B. `100` legt die `100` auf den Stack, `12 23 34 45` ergibt einen Stack mit `12 23 34 45`
+
+**p** holt den obersten Wert des Stacks und gibt ihn auf der Console aus
+
+**"** dupliziert den obersten Stackwert
+
+**'** löscht den obersten Wert des Stacks
+
+**°** löscht den kompletten Stack
+
+**,** gibt alle Stackwerte aus, verändert aber nicht den Stack
+
+**.** gibt die Anzahl der Wert auf den Stack, verändert aber nicht den Stack
 
 ### Eigene Routinen und Befehle
 
@@ -108,25 +126,25 @@ Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systemes 
 | g       |                                                              |                                   | h       | help, zeigt alle Befehle an                                  |                                           |
 | i       | input from pin                                               | 1. Pinnummer                      | j       | Pulse in, misst die Pulsweite am Pin in ms                   | 1. Pin                                    |
 | k       | aktueller Wert in einer Schleife                             |                                   | l       |                                                              |                                           |
-| m       |                                                              |                                   | n       |                                                              |                                           |
-| o       | output to pin                                                | 1. Pinnumer<br />2. Wert          | p       | gibt den aktuellen Wert                                      | 1. Wert                                   |
+| m       |                                                              |                                   | n       | number: get a number from the console, in interactive, simply type the number after the n and press Enter, e.g. n123 |                                           |
+| o       | output to pin                                                | 1. Pinnumer<br />2. Wert          | p       | gibt den aktuellen Wert aus                                  | 1. Wert                                   |
 | q       | gibt alle Unterprogramme aus                                 |                                   | r       | Restore, holt einen Wert aus einer Speicherzelle             | 1. Speicherzelle                          |
 | s       | Save, speichert einen Wert auf eine Speicherstelle           | 1. Speicherzelle<br />2. Wert     | t       | tone                                                         | 1.  Frequenz 0=Off                        |
 | u       |                                                              |                                   | v       |                                                              |                                           |
 | w       |                                                              |                                   | x       |                                                              |                                           |
 | y       |                                                              |                                   | z       |                                                              |                                           |
 | !       |                                                              |                                   |         |                                                              |                                           |
-| "       | DUP, obersten Stackwert duplizieren                          |                                   | §       |                                                              |                                           |
+| "       | DUP, obersten Stackwert duplizieren                          |                                   | §       | SWAP, vertauscht die beiden oberen Stackwerte                |                                           |
 | /       | Division                                                     | 1. Wert<br />2. Wert              | $       |                                                              |                                           |
 | %       | Modulus                                                      | 1. Wert<br />2. Wert              | &       | AND                                                          | 1. Wert<br />2. Wert                      |
 | ()      |                                                              |                                   | =       | Skip if not equal                                            | 1. Wert<br />2. Wert                      |
 | []      |                                                              |                                   | {}      | Block definition                                             |                                           |
 | +       | Addition                                                     | 1. Wert<br />2. Wert              | ?       | Skip if not 0                                                | 1. Wenn =0 dann Befehl/Block überspringen |
 | *       | Multiplikation                                               | 1. Wert<br />2. Wert              | ~       | NOT                                                          | 1. Wert                                   |
-| -       | Subtraktion                                                  | 1. Wert<br />2. Wert              | _       | Gibt einen Text auf der Schnittstelle aus.                   |                                           |
+| -       | Subtraktion                                                  | 1. Wert<br />2. Wert              | _       | Gibt einen Text auf der Schnittstelle aus, bis zum nächsten _. |                                           |
 | #       | Start einer Schleife                                         | 1. Anzahl der Schleifendurchgänge | : ;     | Start und Ende einer eigenen Definition                      |                                           |
 | .       | print stacksize                                              |                                   | ,       | print stack                                                  |                                           |
-| °       |                                                              |                                   | @       |                                                              |                                           |
+| °       | Clear stack                                                  |                                   | @       | Config: hier kann die aktuelle Konfigurtion abgelegt werden. Gilt bis zum nächsten CR |                                           |
 | €       |                                                              |                                   | ^       | XOR                                                          | 1. Wert<br />2. Wert                      |
 | \|      | OR                                                           | 1. Wert<br />2. Wert              | >       | Skip if not Greater than                                     | 1. Wert<br />2. Wert                      |
 | '       | DROP, obersten Stackwert verwerfen                           |                                   | <       | Skip if not lesser than                                      | 1. Wert<br />2. Wert                      |
