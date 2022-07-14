@@ -154,8 +154,7 @@ Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systems a
 | -       | Subtraktion                                                  | 1. Wert<br />2. Wert              | _       | Gibt einen Text auf der Schnittstelle aus, bis zum nächsten _. |                                           |
 | #       | Start einer Schleife                                         | 1. Anzahl der Schleifendurchgänge | : ;     | Start und Ende einer eigenen Definition                      |                                           |
 | .       | print stacksize                                              |                                   | ,       | print stack                                                  |                                           |
-|         |                                                              |                                   | @       | Config: hier kann die aktuelle Konfigurtion abgelegt werden. Gilt bis zum nächsten CR |                                           |
-|         |                                                              |                                   | ^       | XOR                                                          | 1. Wert<br />2. Wert                      |
+| ^       | XOR                                                          | 1. Wert<br />2. Wert              | @       | Config: hier kann die aktuelle Konfigurtion abgelegt werden. Gilt bis zum nächsten CR |                                           |
 | \|      | OR                                                           | 1. Wert<br />2. Wert              | >       | Skip if not Greater than                                     | 1. Wert<br />2. Wert                      |
 | '       | DROP, obersten Stackwert verwerfen                           |                                   | <       | Skip if not lesser than                                      | 1. Wert<br />2. Wert                      |
 
