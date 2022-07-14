@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "author": "Wilfried Klaas",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -99.2,
+      "left": 193.11,
+      "attrs": { "color": "yellow" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led2",
+      "top": -97.87,
+      "left": 171.11,
+      "attrs": { "color": "yellow" }
+    },
+    { "type": "wokwi-slide-switch", "id": "sw1", "top": -129.38, "left": 259.57, "attrs": {} },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz1",
+      "top": -221.26,
+      "left": 85.11,
+      "attrs": { "volume": "0.1" }
+    }
+  ],
+  "connections": [
+    [ "uno:4", "led1:A", "green", [ "v-53.8", "h-5.72" ] ],
+    [ "led1:C", "uno:GND.1", "black", [ "v19.73", "h-93.55", "v46.47" ] ],
+    [ "led2:A", "uno:5", "green", [ "v13.74", "h12.89", "v51.13" ] ],
+    [ "led2:C", "uno:GND.1", "black", [ "v17.07", "h0.45" ] ],
+    [ "uno:GND.1", "sw1:1", "black", [ "v-46.52", "h150.57" ] ],
+    [ "sw1:2", "uno:2", "#8f4814", [ "v74.87", "h-36.59" ] ],
+    [ "uno:10", "bz1:2", "green", [ "v0" ] ],
+    [ "bz1:1", "uno:GND.1", "black", [ "v0" ] ]
+  ]
+}

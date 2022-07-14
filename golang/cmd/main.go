@@ -212,7 +212,7 @@ func processNme(nme string) {
 			fmt.Println("Error on stack, can't get value.")
 			return
 		}
-		fmt.Println("pin input")
+		fmt.Println("pin input ", v)
 		stack.Push(1234)
 	case "j":
 		v, ok := stack.Pop()
@@ -220,7 +220,7 @@ func processNme(nme string) {
 			fmt.Println("Error on stack, can't get value.")
 			return
 		}
-		fmt.Println("pulse in")
+		fmt.Println("pulse in ", v)
 		stack.Push(1234)
 	case "k":
 		stack.Push(loopValue)
@@ -310,7 +310,7 @@ func processNme(nme string) {
 			return
 		}
 		fmt.Println("value dropped ", v)
-	case "§":
+	case "!":
 		v1, ok := stack.Pop()
 		if !ok {
 			fmt.Println("Error on stack, can't get value.")
@@ -324,7 +324,7 @@ func processNme(nme string) {
 		stack.Push(v1)
 		stack.Push(v2)
 		fmt.Println("values swapped")
-	case "°":
+	case "z":
 		stack.Clear()
 		fmt.Println("stack cleared ")
 	case "&", "|", "^", "+", "-", "*", "/", "%":
