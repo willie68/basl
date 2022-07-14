@@ -207,9 +207,19 @@ func processNme(nme string) {
 		}
 		fmt.Println("delay: ", v, "ms")
 	case "i":
+		v, ok := stack.Pop()
+		if !ok {
+			fmt.Println("Error on stack, can't get value.")
+			return
+		}
 		fmt.Println("pin input")
 		stack.Push(1234)
 	case "j":
+		v, ok := stack.Pop()
+		if !ok {
+			fmt.Println("Error on stack, can't get value.")
+			return
+		}
 		fmt.Println("pulse in")
 		stack.Push(1234)
 	case "k":
