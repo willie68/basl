@@ -458,6 +458,7 @@ func getNumber() (int, bool) {
 	} else {
 		r = reader
 	}
+	fmt.Print(">")
 	for {
 		_, err := r.Read(rune)
 		if err != nil {
