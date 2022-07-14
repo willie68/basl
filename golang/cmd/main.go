@@ -21,7 +21,7 @@ type ReaderEntry struct {
 }
 type ReaderStack []ReaderEntry
 
-const COMMANDS string = " 0123456789abcdefghijklmnopqrstuvwxyz!\"/§%&={}+?*~-_#:;.,^°|><'`´\\[]"
+const COMMANDS string = " 0123456789abcdefghijklmnopqrstuvwxyz!\"/§%&={}+?*~-_#:;.,^°|><'`´\\[]@$"
 const USRCMD string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 var (
@@ -40,6 +40,7 @@ var (
 	v            int
 	inNumber     bool
 	inSubroutine bool
+	pins         []byte
 )
 
 func init() {
@@ -56,11 +57,12 @@ func init() {
 	inNumber = false
 	console = true
 	inSubroutine = false
+	pins = []byte("iiiiooooippixoaa")
 }
 
 func main() {
 	log.Info("starting basl for pc")
-	log.Logger.SetLevel(log.LvInfo)
+	log.Logger.SetLevel(log.LvDebug)
 	fs.Parse(os.Args[1:])
 
 	if baslFile != "" {
@@ -399,6 +401,47 @@ func processNme(nme string) {
 			doWork = v1 < v2
 		}
 		nextBlockOrNot(doWork)
+	case "@":
+		log.Debug("config command")
+		pins = make([]byte, 0)
+		for {
+			c, err := readNme()
+			if err != nil {
+				fmt.Println("Error: ", err)
+				break
+			}
+			switch c {
+			case 'i', 'I':
+				// digital input
+				pins = append(pins, 'i')
+			case 'o', 'O':
+				// digital output
+				pins = append(pins, 'o')
+			case 'a', 'A':
+				// analog input
+				pins = append(pins, 'a')
+			case 'p', 'P':
+				// pwm output
+				pins = append(pins, 'p')
+			case 's', 'S':
+				// servo output
+				pins = append(pins, 's')
+			case 'x', 'X':
+				// pin not used
+				pins = append(pins, 'x')
+			}
+			if (c == '\r') || (c == '\n') {
+				fmt.Println()
+				break
+			}
+			fmt.Print(string(c))
+		}
+	case "$":
+		log.Debug("output pin configuration")
+		for _, p := range pins {
+			fmt.Print(string(p))
+		}
+		fmt.Println()
 	case "{", "}":
 		// nothing to do here
 	default:
@@ -521,6 +564,8 @@ func showHelp() {
 	fmt.Println("k: push loop index")
 	fmt.Println("n: input a number")
 	fmt.Println("o: output to pin")
+	fmt.Println("@: set pin configuration")
+	fmt.Println("$: output pin configuration")
 	fmt.Println("r: retrive value from address")
 	fmt.Println("s: store value to address")
 	fmt.Println("t: tone, 0=off")

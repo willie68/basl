@@ -86,6 +86,16 @@ Beispiel: `20 # { k p}` gibt die Werte `1 2 3 4 5 .. 20` aus.
 
 **_** gibt den nachfolgenden Text bis zum nächsten **_** aus. `_ Hallo RC Simple_`  gibt "Hallo RC Simple" aus.
 
+**@** können Pins definiert werden. Je nach Implementierung können hier verschiedene Einstellungen vorgenommen werden. In der GoLang implementierung besteht der Config Text aus verschiedenen Buchstaben. Die Position gibt den Pin Index an. 
+**i** Digital Input
+**o** Digital Output
+**a** analog Input
+**p** PWM (analog) Output
+**s** Servo Output
+Beispiel: `@ iiiiooooippixoaa` ist die typische  Arduino TPS Konfiguration
+
+**$** gibt die aktuelle Pin Konfiguration aus
+
 ### Kommandos
 
 **d** Delay, also eine Wartezeit, der Parameter gibt die Anzahl der ms an.
@@ -114,7 +124,7 @@ Beispiel: `20 # { k p}` gibt die Werte `1 2 3 4 5 .. 20` aus.
 
 Ein eigener Befehl wir mit eine **:** eingeleitet. Danach folgt ein Großbuchstabe, der den Namen der Routine vorgibt. danach folgen die Befehle. Die Definition endet mit einem **;** Nur diese Routinen werden dauerhaft gespeichert.  
 
-Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systemes automatisch ausgeführt.
+Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systems automatisch ausgeführt.
 
 ### Befehlsübersicht
 
@@ -133,9 +143,9 @@ Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systemes 
 | u       |                                                              |                                   | v       |                                                              |                                           |
 | w       |                                                              |                                   | x       |                                                              |                                           |
 | y       |                                                              |                                   | z       |                                                              |                                           |
-| !       |                                                              |                                   |         |                                                              |                                           |
+|         |                                                              |                                   |         |                                                              |                                           |
 | "       | DUP, obersten Stackwert duplizieren                          |                                   | §       | SWAP, vertauscht die beiden oberen Stackwerte                |                                           |
-| /       | Division                                                     | 1. Wert<br />2. Wert              | $       |                                                              |                                           |
+| /       | Division                                                     | 1. Wert<br />2. Wert              | $       | output pin configuration                                     |                                           |
 | %       | Modulus                                                      | 1. Wert<br />2. Wert              | &       | AND                                                          | 1. Wert<br />2. Wert                      |
 | ()      |                                                              |                                   | =       | Skip if not equal                                            | 1. Wert<br />2. Wert                      |
 | []      |                                                              |                                   | {}      | Block definition                                             |                                           |
@@ -145,7 +155,7 @@ Eine Besonderheit ist die Routine mit A. Diese wird nach dem Start des Systemes 
 | #       | Start einer Schleife                                         | 1. Anzahl der Schleifendurchgänge | : ;     | Start und Ende einer eigenen Definition                      |                                           |
 | .       | print stacksize                                              |                                   | ,       | print stack                                                  |                                           |
 | °       | Clear stack                                                  |                                   | @       | Config: hier kann die aktuelle Konfigurtion abgelegt werden. Gilt bis zum nächsten CR |                                           |
-| €       |                                                              |                                   | ^       | XOR                                                          | 1. Wert<br />2. Wert                      |
+| !       |                                                              |                                   | ^       | XOR                                                          | 1. Wert<br />2. Wert                      |
 | \|      | OR                                                           | 1. Wert<br />2. Wert              | >       | Skip if not Greater than                                     | 1. Wert<br />2. Wert                      |
 | '       | DROP, obersten Stackwert verwerfen                           |                                   | <       | Skip if not lesser than                                      | 1. Wert<br />2. Wert                      |
 
