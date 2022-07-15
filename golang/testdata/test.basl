@@ -1,5 +1,14 @@
-_TEST Numerical input_
+_TEST if loop_
+:K_ mit 4 klammern }{{{ im text_;
 
-n,p
-,
+1 2+
+_should be _p
+
+K
+
+0#{_do_}_it_
+
+_start 1_
+20#{kpK}
+_ende 1_
 

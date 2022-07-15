@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,9 +14,7 @@ import (
 
 type Stack []int
 
-const STACKSIZE int = 128
-const STORESIZE int = 128
-const COMMANDS string = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+const COMMANDS string = " 0123456789abcdefghijklmnopqrstuvwxyz!\"/§%&={}+?*~-_#:;.,^°|><'`´\\[]@$ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 var (
 	baslFile     string
@@ -47,7 +44,8 @@ func init() {
 	fs.SortFlags = false
 
 	stack = make([]int, 0)
-	store = make([]int, STORESIZE)
+	store = make([]int, 1024)
+	readerStack = make([]ReaderEntry, 0)
 	definitions = make(map[string]string)
 	v = 0
 	inNumber = false
@@ -58,7 +56,7 @@ func init() {
 }
 
 func main() {
-	log.Info("starting basl for pc V0.1")
+	log.Info("starting basl for pc")
 	log.Logger.SetLevel(log.LvDebug)
 	fs.Parse(os.Args[1:])
 
@@ -80,7 +78,6 @@ func main() {
 		if err != nil {
 			fmt.Println("error: ", err)
 		}
-
 		if c > 0 {
 			execute(c)
 		}
@@ -94,17 +91,7 @@ func main() {
 func readNme() (byte, error) {
 	rune := make([]byte, 1)
 	_, err := reader.Read(rune)
-	if (err == io.EOF) && ((baslFile != "") || inSubroutine) {
-		if inSubroutine {
-			re, ok := readerStack.Pop()
-			if !ok {
-				return 0, errors.New("no reader in stack")
-			}
-			inSubroutine = re.Subroutine
-			reader = re.Reader
-			console = re.Console
-			return rune[0], nil
-		}
+	if (err == io.EOF) && (baslFile != "") {
 		reader = bufio.NewReader(os.Stdin)
 		console = true
 		err = nil
@@ -596,9 +583,7 @@ func (s *Stack) IsEmpty() bool {
 
 // Push a new value onto the stack
 func (s *Stack) Push(v int) {
-	if len(s) < STACKSIZE {
-		*s = append(*s, v) // Simply append the new value to the end of the stack
-	}
+	*s = append(*s, v) // Simply append the new value to the end of the stack
 }
 
 // Remove and return top element of stack. Return false if stack is empty.
@@ -615,30 +600,4 @@ func (s *Stack) Pop() (int, bool) {
 
 func (s *Stack) Clear() {
 	*s = make([]int, 0)
-}
-
-// IsEmpty: check if stack is empty
-func (s *ReaderStack) IsEmpty() bool {
-	return len(*s) == 0
-}
-
-// Push a new value onto the stack
-func (s *ReaderStack) Push(r ReaderEntry) {
-	*s = append(*s, r) // Simply append the new value to the end of the stack
-}
-
-// Remove and return top element of stack. Return false if stack is empty.
-func (s *ReaderStack) Pop() (ReaderEntry, bool) {
-	if s.IsEmpty() {
-		return ReaderEntry{}, false
-	} else {
-		index := len(*s) - 1   // Get the index of the top most element.
-		element := (*s)[index] // Index into the slice and obtain the element.
-		*s = (*s)[:index]      // Remove it from the stack by slicing it off.
-		return element, true
-	}
-}
-
-func (s *ReaderStack) Clear() {
-	*s = make([]ReaderEntry, 0)
 }

@@ -1,0 +1,28 @@
+_TEST if loop_
+
+0{_dies ist ein Kommentar_}
+
+0{_mit { verschachtelten} Klammern}_}
+
+1{_das wird 1x ausgeführt_}
+
+2{_das wird 2x ausgeführt_}
+
+1 2<,{_1 ist kleiner als 2_}
+
+1 1=,{_1 ist gleich 1_}
+
+1 2>,{_1 ist grösser als 2_}_nein, das ist falsch_
+
+
+0#{_do_}_it_
+
+1#{K}_ende_
+
+0#{_mit_ { _verschachtelten_ } _Klammern_}_ende_
+
+1#{_mit_ { _verschachtelten_} _Klammern_}_ende_
+
+1#{kp_das wird 1x ausgeführt_}_ende_
+
+2#{kp_das wird 2x ausgeführt_}_ende_
