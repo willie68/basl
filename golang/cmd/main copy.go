@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +14,12 @@ import (
 )
 
 type Stack []int
+type ReaderEntry struct {
+	Reader     *bufio.Reader
+	Console    bool
+	Subroutine bool
+}
+type ReaderStack []ReaderEntry
 
 const COMMANDS string = " 0123456789abcdefghijklmnopqrstuvwxyz!\"/§%&={}+?*~-_#:;.,^°|><'`´\\[]@$ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -91,7 +98,17 @@ func main() {
 func readNme() (byte, error) {
 	rune := make([]byte, 1)
 	_, err := reader.Read(rune)
-	if (err == io.EOF) && (baslFile != "") {
+	if (err == io.EOF) && ((baslFile != "") || inSubroutine) {
+		if inSubroutine {
+			re, ok := readerStack.Pop()
+			if !ok {
+				return 0, errors.New("no reader in stack")
+			}
+			inSubroutine = re.Subroutine
+			reader = re.Reader
+			console = re.Console
+			return rune[0], nil
+		}
 		reader = bufio.NewReader(os.Stdin)
 		console = true
 		err = nil
@@ -600,4 +617,30 @@ func (s *Stack) Pop() (int, bool) {
 
 func (s *Stack) Clear() {
 	*s = make([]int, 0)
+}
+
+// IsEmpty: check if stack is empty
+func (s *ReaderStack) IsEmpty() bool {
+	return len(*s) == 0
+}
+
+// Push a new value onto the stack
+func (s *ReaderStack) Push(r ReaderEntry) {
+	*s = append(*s, r) // Simply append the new value to the end of the stack
+}
+
+// Remove and return top element of stack. Return false if stack is empty.
+func (s *ReaderStack) Pop() (ReaderEntry, bool) {
+	if s.IsEmpty() {
+		return ReaderEntry{}, false
+	} else {
+		index := len(*s) - 1   // Get the index of the top most element.
+		element := (*s)[index] // Index into the slice and obtain the element.
+		*s = (*s)[:index]      // Remove it from the stack by slicing it off.
+		return element, true
+	}
+}
+
+func (s *ReaderStack) Clear() {
+	*s = make([]ReaderEntry, 0)
 }

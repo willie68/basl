@@ -14,6 +14,10 @@ import (
 )
 
 type Stack []int
+type Block struct {
+	content string
+	pos     int
+}
 
 const STACKSIZE int = 128
 const STORESIZE int = 128
@@ -38,6 +42,7 @@ var (
 	inOutput     bool
 	pins         []byte
 	b2i          = map[bool]int{false: 0, true: 1}
+	block        Block
 )
 
 func init() {

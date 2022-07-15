@@ -158,6 +158,10 @@ Das System ist nicht rekursiv, d.h. Blöcke (Schleifen und Conditions) dürfen n
 | \|      | OR                                                           | 1. Wert<br />2. Wert          | >       | Greater than                                                 | 1. Wert<br />2. Wert              |
 | '       | DROP, obersten Stackwert verwerfen                           |                               | <       | Lesser than                                                  | 1. Wert<br />2. Wert              |
 
+```txt
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+```
+
 ## Apendix
 
 SIMPL: https://github.com/monsonite/SIMPL
