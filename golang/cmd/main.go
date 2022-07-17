@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -34,12 +33,11 @@ var (
 	definitions  map[string]string
 	defName      string
 	defText      string
-	reader       *bufio.Reader
-	readerStack  ReaderStack
 	v            int
 	inNumber     bool
 	inSubroutine bool
 	inOutput     bool
+	inConfig     bool
 	pins         []byte
 	b2i          = map[bool]int{false: 0, true: 1}
 	block        Block
@@ -59,13 +57,15 @@ func init() {
 	console = true
 	inSubroutine = false
 	inOutput = false
+	inConfig = false
 	pins = []byte("iiiiooooippixoaa")
 }
 
 func main() {
 	log.Info("starting basl for pc V0.1")
-	log.Logger.SetLevel(log.LvDebug)
+	log.Logger.SetLevel(log.LvInfo)
 	fs.Parse(os.Args[1:])
+	var reader *bufio.Reader
 
 	if baslFile != "" {
 		f, err := os.Open(baslFile)
@@ -81,14 +81,17 @@ func main() {
 	}
 
 	for {
-		c, err := readNme()
+		line, err := reader.ReadString('\n')
+		if (err == io.EOF) && !console {
+			reader = bufio.NewReader(os.Stdin)
+			console = true
+			err = nil
+		}
 		if err != nil {
 			fmt.Println("error: ", err)
 		}
 
-		if c > 0 {
-			execute(c)
-		}
+		evaluate(line)
 
 		if console && (reader.Buffered() == 0) {
 			fmt.Print(":")
@@ -96,38 +99,15 @@ func main() {
 	}
 }
 
-func readNme() (byte, error) {
-	rune := make([]byte, 1)
-	_, err := reader.Read(rune)
-	if (err == io.EOF) && ((baslFile != "") || inSubroutine) {
-		if inSubroutine {
-			re, ok := readerStack.Pop()
-			if !ok {
-				return 0, errors.New("no reader in stack")
-			}
-			inSubroutine = re.Subroutine
-			reader = re.Reader
-			console = re.Console
-			return rune[0], nil
-		}
-		reader = bufio.NewReader(os.Stdin)
-		console = true
-		err = nil
+func evaluate(line string) {
+	for _, c := range line {
+		execute(byte(c))
 	}
-	if err != nil {
-		return 0, err
-	}
-	return rune[0], nil
+	inConfig = false
 }
 
 func execute(chr byte) {
 	schr := string(chr)
-
-	if chr == ':' {
-		log.Debug("start defining user cmd")
-		inDefinition = true
-		return
-	}
 
 	if inDefinition {
 		if chr == ';' {
@@ -150,6 +130,30 @@ func execute(chr byte) {
 		return
 	}
 
+	if inConfig {
+		switch chr {
+		case 'i', 'I':
+			// digital input
+			pins = append(pins, 'i')
+		case 'o', 'O':
+			// digital output
+			pins = append(pins, 'o')
+		case 'a', 'A':
+			// analog input
+			pins = append(pins, 'a')
+		case 'p', 'P':
+			// pwm output
+			pins = append(pins, 'p')
+		case 's', 'S':
+			// servo output
+			pins = append(pins, 's')
+		case 'x', 'X':
+			// pin not used
+			pins = append(pins, 'x')
+		}
+		return
+	}
+
 	if schr == "_" {
 		inOutput = !inOutput
 		if !inOutput {
@@ -167,7 +171,6 @@ func execute(chr byte) {
 		processNme(schr)
 		return
 	}
-
 }
 
 func processNme(nme string) {
@@ -187,6 +190,8 @@ func processNme(nme string) {
 	}
 
 	switch nme {
+	case ":":
+		inDefinition = true
 	case "h":
 		showHelp()
 	case ".":
@@ -223,12 +228,15 @@ func processNme(nme string) {
 	case "k":
 		stack.Push(loopValue)
 	case "n":
-		n, ok := getNumber()
-		if !ok {
-			fmt.Println("Error on input, can't get value.")
-			return
-		}
-		stack.Push(n)
+		fmt.Println("not implemented yet")
+		/*
+			n, ok := getNumber()
+			if !ok {
+				fmt.Println("Error on input, can't get value.")
+				return
+			}
+			stack.Push(n)
+		*/
 	case "o":
 		pin, ok := stack.Pop()
 		if !ok {
@@ -334,72 +342,12 @@ func processNme(nme string) {
 			return
 		}
 		stack.Push(^v1)
-	case "#":
-		v, ok := stack.Pop()
-		if !ok {
-			fmt.Println("Error on stack, can't get value.")
-			return
-		}
-		fmt.Println("loop from 0 to ", v-1)
-		loopValue = 1
-		c, err := readNme()
-		if err != nil {
-			fmt.Println("error: ", err)
-			return
-		}
-		if c == '{' {
-			// process a block
-			text, err := readBlock()
-			if err != nil {
-				fmt.Println("error: ", err)
-				return
-			}
-			for loopValue = 0; loopValue < v; loopValue++ {
-				for _, c := range text {
-					processNme(string(c))
-				}
-			}
-		} else {
-			// process a single command
-			for loopValue = 0; loopValue < v; loopValue++ {
-				processNme(string(c))
-			}
-		}
-		loopValue = 0
 	case "@":
-		log.Debug("config command")
-		pins = make([]byte, 0)
-		for {
-			c, err := readNme()
-			if err != nil {
-				fmt.Println("Error: ", err)
-				break
-			}
-			switch c {
-			case 'i', 'I':
-				// digital input
-				pins = append(pins, 'i')
-			case 'o', 'O':
-				// digital output
-				pins = append(pins, 'o')
-			case 'a', 'A':
-				// analog input
-				pins = append(pins, 'a')
-			case 'p', 'P':
-				// pwm output
-				pins = append(pins, 'p')
-			case 's', 'S':
-				// servo output
-				pins = append(pins, 's')
-			case 'x', 'X':
-				// pin not used
-				pins = append(pins, 'x')
-			}
-			if (c == '\r') || (c == '\n') {
-				fmt.Println()
-				break
-			}
-			fmt.Print(string(c))
+		if !inConfig {
+			pins = make([]byte, 0)
+			inConfig = true
+		} else {
+			inConfig = false
 		}
 	case "$":
 		log.Debug("output pin configuration")
@@ -416,20 +364,14 @@ func processNme(nme string) {
 			log.Error("user command not found! " + nme)
 			return
 		}
-		re := ReaderEntry{
-			Reader:     reader,
-			Console:    console,
-			Subroutine: inSubroutine,
-		}
-		readerStack.Push(re)
-		reader = bufio.NewReader(strings.NewReader(def))
-		inSubroutine = true
-		console = false
+		log.Debug("eval: " + def)
+		evaluate(def)
 	default:
 		log.Errorf("unknown command: %v", nme)
 	}
 }
 
+/*
 func getNumber() (int, bool) {
 	var r *bufio.Reader
 	v := 0
@@ -456,51 +398,14 @@ func getNumber() (int, bool) {
 }
 
 func nextBlockOrNot(doWork bool) {
-	c, err := readNme()
+	_, err := readNme()
 	if err != nil {
 		fmt.Println("error: ", err)
 		return
 	}
-	if c == '{' {
-		// process a block
-		text, err := readBlock()
-		if err != nil {
-			fmt.Println("error: ", err)
-			return
-		}
-		if doWork {
-
-			re := ReaderEntry{
-				Reader:     reader,
-				Console:    console,
-				Subroutine: inSubroutine,
-			}
-			readerStack.Push(re)
-			reader = bufio.NewReader(strings.NewReader(text))
-			inSubroutine = true
-			console = false
-		}
-	} else {
-		if doWork {
-			execute(c)
-		}
-	}
 }
 
-func readBlock() (string, error) {
-	text := ""
-	for {
-		c, err := readNme()
-		if err != nil {
-			return "", err
-		}
-		if c == '}' {
-			break
-		}
-		text = text + string(c)
-	}
-	return text, nil
-}
+*/
 
 func math(mne string) bool {
 	v1, ok := stack.Pop()
@@ -601,7 +506,7 @@ func (s *Stack) IsEmpty() bool {
 
 // Push a new value onto the stack
 func (s *Stack) Push(v int) {
-	if len(s) < STACKSIZE {
+	if len(*s) < STACKSIZE {
 		*s = append(*s, v) // Simply append the new value to the end of the stack
 	}
 }
@@ -620,30 +525,4 @@ func (s *Stack) Pop() (int, bool) {
 
 func (s *Stack) Clear() {
 	*s = make([]int, 0)
-}
-
-// IsEmpty: check if stack is empty
-func (s *ReaderStack) IsEmpty() bool {
-	return len(*s) == 0
-}
-
-// Push a new value onto the stack
-func (s *ReaderStack) Push(r ReaderEntry) {
-	*s = append(*s, r) // Simply append the new value to the end of the stack
-}
-
-// Remove and return top element of stack. Return false if stack is empty.
-func (s *ReaderStack) Pop() (ReaderEntry, bool) {
-	if s.IsEmpty() {
-		return ReaderEntry{}, false
-	} else {
-		index := len(*s) - 1   // Get the index of the top most element.
-		element := (*s)[index] // Index into the slice and obtain the element.
-		*s = (*s)[:index]      // Remove it from the stack by slicing it off.
-		return element, true
-	}
-}
-
-func (s *ReaderStack) Clear() {
-	*s = make([]ReaderEntry, 0)
 }

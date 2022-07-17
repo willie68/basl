@@ -30,11 +30,21 @@ berechnet 100 + 200 und legt dann das Ergebnis, 300, wieder auf den Stack.
 
 berechnet 100 + 200 und legt dann das Ergebnis, 300, wieder auf den Stack.   
 
+| Stack | Operation | Stack |
+| ----- | --------- | ----- |
+| 200   | +         | 300   |
+| 100   |           |       |
+
 **\-** Subtrahiert 2 Werte und legt das Ergebnis wieder auf den Stack. Beispiel:
 
 `200 100 - [cr]`
 
 berechnet 200 - 100 und legt dann das Ergebnis, 100, wieder auf den Stack.   
+
+| Stack | Operation | Stack |
+| ----- | --------- | ----- |
+| 100   | -         | 100   |
+| 200   |           |       |
 
 Ähnlich funktionieren: 
 
@@ -56,9 +66,9 @@ Mit **=** werden 2 Werte vom Stack genommen und auf Gleichheit getestet. Ist das
 
 Ähnliches gilt für **>** und **<**. 
 
-### Bedingungen, Schleifen 
+### Blöcke -> Bedingungen, Schleifen 
 
-Bedingungen und Schleifen werden über **{}** angelegt. **{** leitet den Block ein. Dabei wird ein Wert vom Stack geholt. Bei 0 wird der Block ignoriert, bei Werten >0 wird der Block genau so oft ausgeführt. 
+Blöcke werden sowohl für Bedingungen wie auch für SHcleifen eingesetzt. **{** leitet den Block ein. Dabei wird ein Wert vom Stack geholt. Bei 0 wird der Block (bis zum nächsten }) ignoriert, bei Werten >0 wird der Block genau so oft ausgeführt. 
 
 Auf den Zähler der Schleife kann mittels **k** zugegriffen werden.
 

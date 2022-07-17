@@ -1,14 +1,16 @@
+@iiiioooo
+
 _TEST if loop_
-:K_ mit 4 klammern }{{{ im text_;
+:K_mit 4 klammern }{{{ im text_;
 
 1 2+
 _should be _p
 
 K
 
-0#{_do_}_it_
+0{_do_}_it_
 
 _start 1_
-20#{kpK}
+20{kp}
 _ende 1_
 
