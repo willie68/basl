@@ -355,7 +355,10 @@ func processNme(nme string) {
 			fmt.Print(string(p))
 		}
 		fmt.Println()
-	case "{", "}":
+	case "{":
+		inBlock = true
+	case "}":
+		inBlock = false
 		// nothing to do here
 	case "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z":
 		log.Debug("user command: " + nme)
