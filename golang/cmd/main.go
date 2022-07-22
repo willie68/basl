@@ -167,6 +167,10 @@ func execute(chr byte) {
 		return
 	}
 
+	if inBLock {
+
+	}
+
 	if strings.Contains(COMMANDS, schr) {
 		processNme(schr)
 		return
@@ -357,6 +361,7 @@ func processNme(nme string) {
 		fmt.Println()
 	case "{":
 		inBlock = true
+		
 	case "}":
 		inBlock = false
 		// nothing to do here
