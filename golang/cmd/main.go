@@ -28,7 +28,7 @@ var (
 	console      bool
 	stack        Stack
 	store        []int
-	loopValue    int
+	k            int
 	inDefinition bool
 	definitions  map[string]string
 	defName      string
@@ -40,7 +40,8 @@ var (
 	inConfig     bool
 	pins         []byte
 	b2i          = map[bool]int{false: 0, true: 1}
-	block        Block
+	block        string
+	reader       *bufio.Reader
 )
 
 func init() {
@@ -65,7 +66,6 @@ func main() {
 	log.Info("starting basl for pc V0.1")
 	log.Logger.SetLevel(log.LvInfo)
 	fs.Parse(os.Args[1:])
-	var reader *bufio.Reader
 
 	if baslFile != "" {
 		f, err := os.Open(baslFile)
@@ -81,21 +81,44 @@ func main() {
 	}
 
 	for {
-		line, err := reader.ReadString('\n')
-		if (err == io.EOF) && !console {
-			reader = bufio.NewReader(os.Stdin)
-			console = true
-			err = nil
-		}
-		if err != nil {
-			fmt.Println("error: ", err)
-		}
-
-		evaluate(line)
-
+		c := readchar()
+		execute(c)
 		if console && (reader.Buffered() == 0) {
 			fmt.Print(":")
 		}
+	}
+}
+
+func readchar() byte {
+	c, err := reader.ReadByte()
+	if (err == io.EOF) && !console {
+		reader = bufio.NewReader(os.Stdin)
+		console = true
+		err = nil
+		fmt.Print(":")
+		c, err = reader.ReadByte()
+	}
+	if err != nil {
+		fmt.Println("error: ", err)
+	}
+	return c
+}
+
+func readBlock() string {
+	block := ""
+	ident := 0
+	for {
+		c := readchar()
+		if c == '{' {
+			ident++
+		}
+		if c == '}' {
+			if ident == 0 {
+				return block
+			}
+			ident--
+		}
+		block = block + string(c)
 	}
 }
 
@@ -150,6 +173,8 @@ func execute(chr byte) {
 		case 'x', 'X':
 			// pin not used
 			pins = append(pins, 'x')
+		case '\n', '\r':
+			inConfig = false
 		}
 		return
 	}
@@ -165,10 +190,6 @@ func execute(chr byte) {
 	if inOutput {
 		fmt.Print(schr)
 		return
-	}
-
-	if inBLock {
-
 	}
 
 	if strings.Contains(COMMANDS, schr) {
@@ -230,7 +251,7 @@ func processNme(nme string) {
 		fmt.Println("pulse in ", v)
 		stack.Push(1234)
 	case "k":
-		stack.Push(loopValue)
+		stack.Push(k)
 	case "n":
 		fmt.Println("not implemented yet")
 		/*
@@ -360,10 +381,18 @@ func processNme(nme string) {
 		}
 		fmt.Println()
 	case "{":
-		inBlock = true
-		
-	case "}":
-		inBlock = false
+		block = readBlock()
+		v1, ok := stack.Pop()
+		if !ok {
+			fmt.Println("Error on stack, can't get value.")
+			return
+		}
+		if v1 > 0 {
+			for lv := 1; lv <= v1; lv++ {
+				k = lv
+				evaluate(block)
+			}
+		}
 		// nothing to do here
 	case "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z":
 		log.Debug("user command: " + nme)
