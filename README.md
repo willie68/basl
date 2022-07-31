@@ -72,15 +72,15 @@ Mit **=** werden 2 Werte vom Stack genommen und auf Gleichheit getestet. Ist das
 
 ### Blöcke -> Bedingungen, Schleifen 
 
-Blöcke werden sowohl für Bedingungen wie auch für SHcleifen eingesetzt. **{** leitet den Block ein. Dabei wird ein Wert vom Stack geholt. Bei 0 wird der Block (bis zum nächsten }) ignoriert, bei Werten >0 wird der Block genau so oft ausgeführt. 
+Blöcke werden sowohl für Bedingungen wie auch für Schleifen eingesetzt. **{** leitet den Block ein. Dabei wird ein Wert vom Stack geholt. Bei 0 wird der Block (bis zum nächsten }) ignoriert, bei Werten >0 wird der Block genau so oft ausgeführt. 
 
 Auf den Zähler der Schleife kann mittels **k** zugegriffen werden.
 
 Beispiel: `20{ k p}` gibt die Werte `1 2 3 4 5 .. 20` aus. 
 
-**b** ist ein Break, d.h. die Schleife wird direkt verlassen. ist gerade keine Schleife aktiv, wird auf die Shell gesprungen.
+**b** ist ein bedingter Break, d.h. ist der Wert vom Stack > 0 wird die Schleife direkt verlassen.
 
-**c** bedeutet Continue, d.h. die Schleife wird mit dem nächsten Index weiter gemacht. Alle Befehle nach c werden ignoriert.
+**c** bedeutet bedingtes Continue, d.h. ist der Wert vom Stack > 0 wird in der Schleife mit dem nächsten Index weiter gemacht. Alle Befehle nach c werden ignoriert.
 
 Verschachtelte Schleifen sind nicht erlaubt. Das Ergebnis ist undefiniert.
 

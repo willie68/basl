@@ -13,10 +13,6 @@ import (
 )
 
 type Stack []int
-type Block struct {
-	content string
-	pos     int
-}
 
 const STACKSIZE int = 128
 const STORESIZE int = 128
@@ -39,6 +35,8 @@ var (
 	inOutput     bool
 	inConfig     bool
 	isHex        bool
+	isBreak      bool
+	isContinue   bool
 	pins         []byte
 	b2i          = map[bool]int{false: 0, true: 1}
 	block        string
@@ -61,6 +59,8 @@ func init() {
 	inOutput = false
 	inConfig = false
 	isHex = false
+	isBreak = false
+	isContinue = false
 	pins = []byte("iiiiooooippixoaa")
 }
 
@@ -248,9 +248,25 @@ func processNme(nme string) {
 		fmt.Println("]")
 		isHex = false
 	case "b":
-		fmt.Println("break, not implemented")
+		v1, ok := stack.Pop()
+		if !ok {
+			fmt.Println("Error on stack, can't get value.")
+			return
+		}
+		if v1 > 0 {
+			fmt.Println("break")
+			isBreak = true
+		}
 	case "c":
-		fmt.Println("continue, not implemented")
+		v1, ok := stack.Pop()
+		if !ok {
+			fmt.Println("Error on stack, can't get value.")
+			return
+		}
+		if v1 > 0 {
+			fmt.Println("continue")
+			isContinue = true
+		}
 	case "d":
 		v, ok := stack.Pop()
 		if !ok {
@@ -421,7 +437,20 @@ func processNme(nme string) {
 		if v1 > 0 {
 			for lv := 1; lv <= v1; lv++ {
 				k = lv
-				evaluate(block)
+				for _, c := range block {
+					execute(byte(c))
+					if isBreak || isContinue {
+						break
+					}
+				}
+				if isBreak {
+					isBreak = false
+					break
+				}
+				if isContinue {
+					isContinue = false
+					continue
+				}
 			}
 		}
 		// nothing to do here
