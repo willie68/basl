@@ -254,7 +254,6 @@ func processNme(nme string) {
 			return
 		}
 		if v1 > 0 {
-			fmt.Println("break")
 			isBreak = true
 		}
 	case "c":
@@ -264,7 +263,6 @@ func processNme(nme string) {
 			return
 		}
 		if v1 > 0 {
-			fmt.Println("continue")
 			isContinue = true
 		}
 	case "d":

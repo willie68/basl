@@ -84,6 +84,33 @@ Beispiel: `20{ k p}` gibt die Werte `1 2 3 4 5 .. 20` aus.
 
 Verschachtelte Schleifen sind nicht erlaubt. Das Ergebnis ist undefiniert.
 
+Beispiel:
+
+`20{kp k 10-b k 5-c _output_ }`
+
+Output:
+
+```
+1
+output
+2
+output
+3
+output
+4
+output
+5
+output
+6
+7
+8
+9
+10
+11
+```
+
+Das ist eine Schleife von 1 - 20. Bis 5 wird "output" ausgegeben und bei 11 wird die Schleife abgebrochen.
+
 ### Input, Output
 
 **o** gibt einen Wert auf einen Ausgabepin aus. `13 1 o [cr]` auf Pin 13 wird eine 1 ausgegeben. Je nach Konfiguration des Pins kann das auch ein analoger (PWM) Wert sein. 
