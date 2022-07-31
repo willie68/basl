@@ -38,6 +38,7 @@ var (
 	inSubroutine bool
 	inOutput     bool
 	inConfig     bool
+	isHex        bool
 	pins         []byte
 	b2i          = map[bool]int{false: 0, true: 1}
 	block        string
@@ -59,6 +60,7 @@ func init() {
 	inSubroutine = false
 	inOutput = false
 	inConfig = false
+	isHex = false
 	pins = []byte("iiiiooooippixoaa")
 }
 
@@ -200,15 +202,24 @@ func execute(chr byte) {
 
 func processNme(nme string) {
 	if (nme[0] >= '0') && (nme[0] <= '9') {
+		c := 10
 		inNumber = true
-		v = v*10 + (int(nme[0]) - int('0'))
-		return
-	} else {
-		if inNumber {
-			stack.Push(v)
-			v = 0
-			inNumber = false
+		if isHex {
+			c = 16
 		}
+		v = v*c + (int(nme[0]) - int('0'))
+		return
+	}
+	if isHex && (nme[0] >= 'a') && (nme[0] <= 'f') {
+		inNumber = true
+		v = v*16 + (int(nme[0]) - int('a') + 10)
+		return
+	}
+	if inNumber {
+		stack.Push(v)
+		v = 0
+		inNumber = false
+		isHex = false
 	}
 	if nme[0] == ' ' {
 		return
@@ -222,7 +233,20 @@ func processNme(nme string) {
 	case ".":
 		fmt.Printf("stacksize: %d\r\n", len(stack))
 	case ",":
-		fmt.Printf("stack: %v\r\n", Reverse(stack))
+		s := Reverse(stack)
+		fmt.Print("stack: [")
+		for x, i := range s {
+			if x > 0 {
+				fmt.Print(", ")
+			}
+			if isHex {
+				fmt.Printf("%x", i)
+			} else {
+				fmt.Printf("%v", i)
+			}
+		}
+		fmt.Println("]")
+		isHex = false
 	case "b":
 		fmt.Println("break, not implemented")
 	case "c":
@@ -280,7 +304,17 @@ func processNme(nme string) {
 			fmt.Println("Error on stack, can't get value.")
 			return
 		}
-		fmt.Println(v)
+		if isHex {
+			isHex = false
+			fmt.Printf("%x\r\n", v)
+		} else {
+			fmt.Println(v)
+		}
+	case "q":
+		fmt.Println("subroutines: ")
+		for k, v := range definitions {
+			fmt.Printf("%s: %s\r\n", k, v)
+		}
 	case "r":
 		x, ok := stack.Pop()
 		if !ok {
@@ -321,11 +355,8 @@ func processNme(nme string) {
 		} else {
 			fmt.Println("tone off")
 		}
-	case "q":
-		fmt.Println("subroutines: ")
-		for k, v := range definitions {
-			fmt.Printf("%s: %s\r\n", k, v)
-		}
+	case "x":
+		isHex = true
 	case "\"":
 		v, ok := stack.Pop()
 		if !ok {
@@ -485,6 +516,7 @@ func math(mne string) bool {
 func showHelp() {
 	fmt.Println("Help")
 	fmt.Println("[#]: push # to stack")
+	fmt.Println("x: hex modifier, next Input/output in HEX format")
 	fmt.Println("b: break actual block")
 	fmt.Println("c: continue with next interation in loop")
 	fmt.Println("d: delay in ms")
