@@ -233,7 +233,20 @@ func processNme(nme string) {
 	case ".":
 		fmt.Printf("stacksize: %d\r\n", len(stack))
 	case ",":
-		fmt.Printf("stack: %v\r\n", Reverse(stack))
+		s := Reverse(stack)
+		fmt.Print("stack: [")
+		for x, i := range s {
+			if x > 0 {
+				fmt.Print(", ")
+			}
+			if isHex {
+				fmt.Printf("%x", i)
+			} else {
+				fmt.Printf("%v", i)
+			}
+		}
+		fmt.Println("]")
+		isHex = false
 	case "b":
 		fmt.Println("break, not implemented")
 	case "c":
@@ -503,6 +516,7 @@ func math(mne string) bool {
 func showHelp() {
 	fmt.Println("Help")
 	fmt.Println("[#]: push # to stack")
+	fmt.Println("x: hex modifier, next Input/output in HEX format")
 	fmt.Println("b: break actual block")
 	fmt.Println("c: continue with next interation in loop")
 	fmt.Println("d: delay in ms")

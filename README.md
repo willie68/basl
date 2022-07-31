@@ -22,6 +22,10 @@ berechnet 100 + 200 und legt dann das Ergebnis, 300, wieder auf den Stack.
 
 ## Befehle 
 
+### Zahlen
+
+Will man eine Zahl auf den Stack legen, muss man nur die Zahl schreiben und mit einem Leerzeichen abschließen. Soll die Zahl in Hexadezimaler Schreibweise erfolgen, muss ein x vorangestellt werden. Bei der Ausgabe des Stacks kann man ebenfalls in 'x' davor setzen, dann werden auch die ausgegebenen Zahlen in Hexadezimaler Schreibweise ausgegeben.
+
 ### Mathematik
 
 **\+** Addiert 2 Werte und legt das Ergebnis wieder auf den Stack. Beispiel: 
@@ -151,7 +155,7 @@ Das System ist nicht rekursiv, d.h. Blöcke (Schleifen und Conditions) dürfen n
 | q       | gibt alle Unterprogramme aus                                 |                               | r       | Restore, holt einen Wert aus einer Speicherzelle             | 1. Speicherzelle                  |
 | s       | Save, speichert einen Wert auf eine Speicherstelle           | 1. Speicherzelle<br />2. Wert | t       | tone                                                         | 1.  Frequenz 0=Off                |
 | u       |                                                              |                               | v       |                                                              |                                   |
-| w       |                                                              |                               | x       |                                                              |                                   |
+| w       |                                                              |                               | x       | hexadezimale Ein/Ausgabe                                     |                                   |
 | y       |                                                              |                               | z       | Clear stack                                                  |                                   |
 |         |                                                              |                               |         |                                                              |                                   |
 | "       | DUP, obersten Stackwert duplizieren                          |                               | !       | SWAP, vertauscht die beiden oberen Stackwerte                |                                   |
